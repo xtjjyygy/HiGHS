@@ -13,9 +13,16 @@
 #include <numeric>
 
 #include "lp_data/HConst.h"
+#include <random>
+#include <iostream>
 #include "mip/HighsCutGeneration.h"
 #include "mip/HighsDomainChange.h"
 #include "mip/HighsMipSolverData.h"
+
+std::random_device rd;  //如果可用的话，从一个随机数发生器上获得一个真正的随机数
+std::mt19937 gen(rd()); //gen是一个使用rd()作种子初始化的标准梅森旋转算法的随机数发生器
+std::uniform_int_distribution<> distrib(0, 8);
+
 
 HighsSearch::HighsSearch(HighsMipSolver& mipsolver, HighsPseudocost& pseudocost)
     : mipsolver(mipsolver),
@@ -1229,22 +1236,25 @@ HighsSearch::NodeResult HighsSearch::branch() {
 
       HighsInt col = branching.first;
 
-      switch (childselrule) {
-        case ChildSelectionRule::kUp:
+      HighsInt random_choice_cild =  distrib(gen);
+      // std::cout << random_choice_cild << std::endl;
+
+      switch (random_choice_cild) {
+        case 0:
           currnode.branchingdecision.boundtype = HighsBoundType::kLower;
           currnode.branchingdecision.boundval =
               std::ceil(currnode.branching_point);
           currnode.other_child_lb = downNodeLb;
           childLb = upNodeLb;
           break;
-        case ChildSelectionRule::kDown:
+        case 1:
           currnode.branchingdecision.boundtype = HighsBoundType::kUpper;
           currnode.branchingdecision.boundval =
               std::floor(currnode.branching_point);
           currnode.other_child_lb = upNodeLb;
           childLb = downNodeLb;
           break;
-        case ChildSelectionRule::kRootSol: {
+        case 2: {
           double downPrio = pseudocost.getAvgInferencesDown(col) +
                             mipsolver.mipdata_->epsilon;
           double upPrio =
@@ -1288,7 +1298,7 @@ HighsSearch::NodeResult HighsSearch::branch() {
           }
           break;
         }
-        case ChildSelectionRule::kObj:
+        case 3:
           if (mipsolver.colCost(col) >= 0) {
             currnode.branchingdecision.boundtype = HighsBoundType::kLower;
             currnode.branchingdecision.boundval =
@@ -1303,7 +1313,7 @@ HighsSearch::NodeResult HighsSearch::branch() {
             childLb = downNodeLb;
           }
           break;
-        case ChildSelectionRule::kRandom:
+        case 4:
           if (random.bit()) {
             currnode.branchingdecision.boundtype = HighsBoundType::kLower;
             currnode.branchingdecision.boundval =
@@ -1318,7 +1328,7 @@ HighsSearch::NodeResult HighsSearch::branch() {
             childLb = downNodeLb;
           }
           break;
-        case ChildSelectionRule::kBestCost: {
+        case 5: {
           if (pseudocost.getPseudocostUp(col, currnode.branching_point,
                                          mipsolver.mipdata_->feastol) >
               pseudocost.getPseudocostDown(col, currnode.branching_point,
@@ -1337,7 +1347,7 @@ HighsSearch::NodeResult HighsSearch::branch() {
           }
           break;
         }
-        case ChildSelectionRule::kWorstCost:
+        case 6:
           if (pseudocost.getPseudocostUp(col, currnode.branching_point) >=
               pseudocost.getPseudocostDown(col, currnode.branching_point)) {
             currnode.branchingdecision.boundtype = HighsBoundType::kLower;
@@ -1353,7 +1363,7 @@ HighsSearch::NodeResult HighsSearch::branch() {
             childLb = downNodeLb;
           }
           break;
-        case ChildSelectionRule::kDisjunction: {
+        case 7: {
           int64_t numnodesup;
           int64_t numnodesdown;
           numnodesup = mipsolver.mipdata_->nodequeue.numNodesUp(col);
@@ -1387,7 +1397,7 @@ HighsSearch::NodeResult HighsSearch::branch() {
           }
           break;
         }
-        case ChildSelectionRule::kHybridInferenceCost: {
+        case 8: {
           double upVal = std::ceil(currnode.branching_point);
           double downVal = std::floor(currnode.branching_point);
           double upScore =
