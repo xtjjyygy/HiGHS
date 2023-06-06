@@ -363,19 +363,22 @@ restart:
       // (HighsInt)nodequeue.size());
       assert(!search.hasNode());
 
-      if (numQueueLeaves - lastLbLeave >= 10) {
-        search.installNode(mipdata_->nodequeue.popBestBoundNode());
-        lastLbLeave = numQueueLeaves;
-      } else {
-        HighsInt bestBoundNodeStackSize =
-            mipdata_->nodequeue.getBestBoundDomchgStackSize();
-        double bestBoundNodeLb = mipdata_->nodequeue.getBestLowerBound();
-        HighsNodeQueue::OpenNode nextNode(mipdata_->nodequeue.popBestNode());
-        if (nextNode.lower_bound == bestBoundNodeLb &&
-            (HighsInt)nextNode.domchgstack.size() == bestBoundNodeStackSize)
-          lastLbLeave = numQueueLeaves;
-        search.installNode(std::move(nextNode));
-      }
+      HighsNodeQueue::OpenNode nextNode(mipdata_->nodequeue.popRandomNode());
+      search.installNode(std::move(nextNode));
+
+//      if (numQueueLeaves - lastLbLeave >= 10) {
+//        search.installNode(mipdata_->nodequeue.popBestBoundNode());
+//        lastLbLeave = numQueueLeaves;
+//      } else {
+//        HighsInt bestBoundNodeStackSize =
+//            mipdata_->nodequeue.getBestBoundDomchgStackSize();
+//        double bestBoundNodeLb = mipdata_->nodequeue.getBestLowerBound();
+//        HighsNodeQueue::OpenNode nextNode(mipdata_->nodequeue.popBestNode());
+//        if (nextNode.lower_bound == bestBoundNodeLb &&
+//            (HighsInt)nextNode.domchgstack.size() == bestBoundNodeStackSize)
+//          lastLbLeave = numQueueLeaves;
+//        search.installNode(std::move(nextNode));
+//      }
 
       ++numQueueLeaves;
 

@@ -18,6 +18,12 @@
 #include "mip/HighsLpRelaxation.h"
 #include "mip/HighsMipSolverData.h"
 #include "util/HighsSplay.h"
+#include <random>
+#include <iostream>
+
+std::random_device rd;  //如果可用的话，从一个随机数发生器上获得一个真正的随机数
+std::mt19937 gen(rd()); //gen是一个使用rd()作种子初始化的标准梅森旋转算法的随机数发生器
+
 
 #define ESTIMATE_WEIGHT .5
 #define LOWERBOUND_WEIGHT .5
@@ -401,6 +407,18 @@ HighsNodeQueue::OpenNode&& HighsNodeQueue::popBestBoundNode() {
   unlink(bestBoundNode);
 
   return std::move(nodes[bestBoundNode]);
+}
+
+HighsNodeQueue::OpenNode&& HighsNodeQueue::popRandomNode() {
+  int64_t nodesNumber = nodes.size() - 1;
+  std::uniform_int_distribution<> distrib(0, nodesNumber);
+
+  int64_t randomNode =  distrib(gen);
+  std::cout << nodesNumber << "," << randomNode << std::endl;
+
+  // unlink(randomNode);
+
+  return std::move(nodes[randomNode]);
 }
 
 double HighsNodeQueue::getBestLowerBound() const {

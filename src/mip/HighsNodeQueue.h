@@ -244,6 +244,8 @@ class HighsNodeQueue {
 
   OpenNode&& popBestNode();
 
+  OpenNode&& popRandomNode();
+
   OpenNode&& popBestBoundNode();
 
   int64_t numNodesUp(HighsInt col) const {
