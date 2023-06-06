@@ -1,3 +1,14 @@
+# Tags
+
+- v1.0.0: initial project
+
+- v1.0.1: random choice child sel rule
+
+- v1.0.2: random choice cild sel and open nodes
+
+- v1.0.3: random choice open nodes only
+
+
 # HiGHS - Linear optimization software
 
 [![Build Status](https://github.com/ERGO-Code/HiGHS/workflows/build/badge.svg)](https://github.com/ERGO-Code/HiGHS/actions?query=workflow%3Abuild+branch%3Amaster)
